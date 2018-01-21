@@ -58,10 +58,10 @@ module Roman = struct
 
   let numerals = ['I';'V';'X';'L';'C';'D';'M']
 
-  let roman (n:int) : string =
+  let roman (n:int) : Core_kernel.Bytes.t =
     let size = roman_size n in
-    let x = String.make size 'M' in
-    let ( ++ ) c k = String.set x k c; k-1 in
+    let x = Bytes.make size 'M' in
+    let ( ++ ) c k = Bytes.set x k c; k-1 in
     let digit d one five ten k =
       match d with
       | 0 -> k

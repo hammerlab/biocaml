@@ -50,6 +50,7 @@ module I = struct
     let ans = match t with
       | ChrX | ChrY | ChrM | Unknown _ -> non_num_to_string t
       | ChrN n -> Roman_num.to_roman (Roman_num.of_arabic n |> ok_exn)
+                  |> Bytes.To_string.subo
     in
     if List.mem ~equal:String.( = ) ["x"; "y"; "m"; "mt"; "mtdna"] (String.lowercase ans)
     then Result.Error (`chromosome_ambiguous_in_roman_form (to_string_arabic t))

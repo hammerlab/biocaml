@@ -30,17 +30,17 @@ val input_u16 : in_channel -> int
 val input_s16 : in_channel -> int
 val input_s32 : in_channel -> int32
 
-val input: in_channel -> string -> int -> int -> int
+val input: in_channel -> bytes -> int -> int -> int
 (** [input ic buf pos len] reads at most [len] characters in file
-    [ic], stores them in string [buf] at position [pos], and returns
+    [ic], stores them in bytes [buf] at position [pos], and returns
     the number of characters actually read. *)
 
 (* FIXME: should raise End_of_file if not enough characters are available! *)
-val really_input : in_channel -> string -> int -> int -> unit
+val really_input : in_channel -> bytes -> int -> int -> unit
 (** Same as [input] but reads exactly [len] characters. @raise
     End_of_file if there are less than [len] characters available.  *)
 
-val input_string : in_channel -> int -> string
+val input_bytes : in_channel -> int -> bytes
 (** Same as [really_input] but returns the result in a fresh
     string. *)
 

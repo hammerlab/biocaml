@@ -12,7 +12,7 @@ val of_roman : string -> t Or_error.t
 val of_arabic : int -> t Or_error.t
 
 (** String representation of a roman numeral. *)
-val to_roman : t -> string
+val to_roman : t -> Bytes.t
 
 (** Integer representation of a roman numeral. *)
 val to_arabic : t -> int

@@ -1,6 +1,6 @@
 open Core_kernel
 
-type t = string
+type t = Bytes.t
 exception Bad of string
 let raise_bad msg = raise (Bad msg)
 
@@ -21,38 +21,50 @@ let of_buffer b =
   let n = Buffer.length b in
   if n > Caml.Sys.max_string_length then raise_bad too_long
   else
-    let ans = String.create n in
+    let ans = Bytes.create n in
     for i = 0 to n-1 do
       let c = Char.uppercase (Buffer.nth b i) in
-      if is_nucleic_acid c then ans.[i] <- c
+      if is_nucleic_acid c then Bytes.set ans i c
       else raise_bad (bad_acid (Buffer.nth b i))
     done;
     ans
 
 let of_string b =
   let n = String.length b in
-  let ans = String.create n in
+  let ans = Bytes.create n in
   for i = 0 to n-1 do
     let c = Char.uppercase b.[i] in
-    if is_nucleic_acid c then ans.[i] <- c
+    if is_nucleic_acid c then Bytes.set ans i c
     else raise_bad (bad_acid b.[i])
   done;
   ans
 
-let of_buffer_unsafe b = Buffer.contents b |> String.uppercase
-let of_string_unsafe s = String.copy s |> String.uppercase
+let of_buffer_unsafe b = Buffer.contents b |> String.uppercase |> Bytes.From_string.subo
+let of_string_unsafe s = String.copy s |> String.uppercase |> Bytes.From_string.subo
 
-let to_string = String.copy
-let nth t i = String.get t (i-1)
-let length = String.length
+let to_string t = Bytes.To_string.subo t
+let nth t i = Bytes.get t (i-1)
+let length = Bytes.length
 (* FIXME: conform Core "t must come first" and have the same names *)
-let fold_left f init s = String.fold s ~init ~f
-let fold_lefti f init s = String.foldi s ~init ~f:(fun i a c -> f a i c)
+let fold_lefti f init s =
+  let r = ref init in
+  for i = 0 to Bytes.length s do
+    r := f !r i (Bytes.get s i)
+  done;
+  !r
 
-(* FIXME: should have the same semantics as String.slice (otherwise
+let fold_left f init s =
+  let r = ref init in
+  for i = 0 to Bytes.length s do
+    r := f !r (Bytes.get s i)
+  done;
+  !r
+
+(* FIXME: should have the same semantics as Bytes.slice (otherwise
    this is error prone). *)
 let slice first last t =
-  if first < 1 || last > String.length t || first > last then
+  if first < 1 || last > Bytes.length t || first > last then
     failwith "requesting invalid slice from sequence"
   else
-    String.slice t (first - 1) last
+    String.slice (Bytes.To_string.subo t) (first - 1) last
+    |> Bytes.From_string.subo
